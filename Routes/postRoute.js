@@ -1,0 +1,27 @@
+import express from "express";
+const router=express.Router();
+import { isAuthenticated } from "../Middleware/isAuthenticated.js";
+import { addCategory, addSlider, allProducts, categoryProduct, createPost, deleteCategory, deletePost, deleteSilder, getAllCategory, getCategoryName, getSinglePost, getSliders, removePostImage, updateCategory, updatePost } from "../Controller/adminController.js";
+import { isAuthorized } from "../Middleware/isAuthenticated.js";
+import { deleteReview } from "../Controller/userController.js";
+import upload from "../Middleware/multerConfig.js";
+
+router.post("/createpost/:id",isAuthenticated,isAuthorized("Admin"),upload.array("images",5),createPost);
+router.post("/addslider",isAuthenticated,isAuthorized("Admin"),upload.array("images",5),addSlider);
+router.delete("/deletepost/:id",isAuthenticated,isAuthorized("Admin"),deletePost);
+router.get("/allproducts",allProducts);
+router.get("/category/:title",categoryProduct);
+router.put("/updatepost/:id",isAuthenticated,isAuthorized("Admin"),updatePost);
+router.put("/deletepostimage/:id/:imageId",isAuthenticated,isAuthorized("Admin"),removePostImage);
+router.post("/addcategory",isAuthenticated,isAuthorized("Admin"),upload.single("image"),addCategory);
+router.put("/updatecategory/:id",isAuthenticated,isAuthorized("Admin"),updateCategory);
+router.delete("/deletecategory/:id",isAuthenticated,isAuthorized("Admin"),deleteCategory);
+router.get("/allcategory",isAuthenticated,isAuthorized("Admin"),getAllCategory);
+router.get("/categoryname",isAuthenticated,isAuthorized("Admin"),getCategoryName);
+router.get("/showpost/:id",getSinglePost);
+router.get("/slider",isAuthenticated,getSliders);
+router.delete("/deleteslider/:id",isAuthenticated,deleteSilder);
+
+
+
+export default router;
