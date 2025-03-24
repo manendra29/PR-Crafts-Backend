@@ -3,7 +3,6 @@ import {catchAsyncError} from "../Middleware/catchAsyncError.js"
 import ErrorHandler  from "../Middleware/error.js"
 import { sendEmail } from "../utils/sendEmail.js";
 import { generateJwtToken } from "../utils/jwtToken.js";
-import {v2 as cloudinary} from "cloudinary"
 import mongoose from "mongoose";
 import { Post } from "../models/postSchema.js";
 import { Review } from "../models/reviewSchema.js";
@@ -101,42 +100,6 @@ export const getProfile=catchAsyncError(async(req,res,next)=>{
         user 
     })
 });
-
-
-export const changeDp=catchAsyncError(async(req,res,next) =>{
-    if(!req.files || Object.keys(req.files).length === 0 )
-        return next(new ErrorHandler("Profile Picture is Needed",400));
-     const {profilePicture}=req.files;
-     const allowedFormart=["image/png","image/jpeg","image/webp"];
-     if(!allowedFormart.includes(profilePicture.mimetype))
-         return next(new ErrorHandler("Profile Picture format not supported",400));
-
-     const cloudinaryResponse= await cloudinary.uploader.upload(
-        profilePicture.tempFilePath,
-        {
-            folder:"Profile_Image"
-        }
-    );
-    if(!cloudinaryResponse || cloudinaryResponse.error){
-        console.log("Cloudinary Error : ", cloudinaryResponse.error || "UnKnown Cloudinary Error Happend!");
-        return next(new ErrorHandler("Failed to upload image top cloudinary",400));
-    }
-    const filter={_id:req.user._id};
-    const data = {
-        $set: {
-          profilePicture:{
-        public_id:cloudinaryResponse.public_id,
-        url:cloudinaryResponse.secure_url
-    }
-        }
-      };
-    const profileImage=await User.updateOne(filter,data);
-    res.status(201).json({
-        success:true,
-        message:"Profile Updated Successfully",
-        profileImage
-    })
-})
 
 export const addReview=catchAsyncError(async(req,res,next) =>{
     const {id}=req.params;

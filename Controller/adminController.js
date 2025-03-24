@@ -103,29 +103,29 @@ export const updatePost = catchAsyncError(async (req,res,next)=> {
 })
 
 
-export const removePostImage = catchAsyncError(async (req, res, next) => {
-    const { id, imageId } = req.params; 
+// export const removePostImage = catchAsyncError(async (req, res, next) => {
+//     const { id, imageId } = req.params; 
 
-    let post = await Post.findById(id);
-    if (!post) return next(new ErrorHandler("Post not found", 404));
+//     let post = await Post.findById(id);
+//     if (!post) return next(new ErrorHandler("Post not found", 404));
 
-    const imageToRemove = post.postImage.find(img => img._id.toString() === imageId);
-    if (!imageToRemove) return next(new ErrorHandler("Image not found in post", 404));
+//     const imageToRemove = post.postImage.find(img => img._id.toString() === imageId);
+//     if (!imageToRemove) return next(new ErrorHandler("Image not found in post", 404));
 
-    await cloudinary.uploader.destroy(imageToRemove.public_id);
+//     await cloudinary.uploader.destroy(imageToRemove.public_id);
 
-    post = await Post.findByIdAndUpdate(
-        id,
-        { $pull: { postImage: { _id: imageId } } },
-        { new: true }
-    );
+//     post = await Post.findByIdAndUpdate(
+//         id,
+//         { $pull: { postImage: { _id: imageId } } },
+//         { new: true }
+//     );
 
-    res.status(200).json({
-        success: true,
-        message: "Image removed successfully",
-        post,
-    });
-});
+//     res.status(200).json({
+//         success: true,
+//         message: "Image removed successfully",
+//         post,
+//     });
+// });
 
 
 // export const addCategoty=catchAsyncError(async(req,res,next) =>{
