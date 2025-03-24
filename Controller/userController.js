@@ -204,7 +204,7 @@ export const addToCart=catchAsyncError(async(req,res,next) =>{
     const post=await Post.findById(id);
     if(!post)
         return next(new ErrorHandler("Post not found",404));
-    if(!quantity || !customization || !price || !image || !title)
+    if(!quantity || !price || !image || !title)
         return next(new ErrorHandler("Please provide all details",400));
     const addToCart=await Cart.create({
         userId:req.user._id,

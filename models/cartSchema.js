@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 
 const cartSchema=new mongoose.Schema({
     quantity:Number,
-    customization:String,
+    customization:{
+        type:String,
+        default:"Do as Your Own "
+
+    },
     image:String,
     title:String,
     price:Number,
