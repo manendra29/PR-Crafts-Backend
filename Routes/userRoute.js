@@ -2,7 +2,6 @@ import express from "express";
 const router=express.Router();
 import { isAuthenticated } from "../Middleware/isAuthenticated.js";
 import { addReview, addToCart, cartSize, deleteCartProduct, deleteReview, generateOTP, getProfile, getReviewsOfPost, login, logout, MyCart, productsTagLine, register, underPrice, verifyOTP } from "../Controller/userController.js";
-import upload from "../Middleware/multerConfig.js";
 
 
 router.post("/otp",generateOTP);

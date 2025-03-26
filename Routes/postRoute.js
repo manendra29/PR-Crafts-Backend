@@ -4,7 +4,6 @@ import { isAuthenticated } from "../Middleware/isAuthenticated.js";
 import { addCategory, addSlider, allProducts, categoryProduct, createPost, deleteCategory, deletePost, deleteSilder, getAllCategory, getCategoryName, getSinglePost, getSliders, updateCategory, updatePost } from "../Controller/adminController.js";
 import { isAuthorized } from "../Middleware/isAuthenticated.js";
 import { deleteReview } from "../Controller/userController.js";
-import upload from "../Middleware/multerConfig.js";
 
 router.post("/createpost/:id",isAuthenticated,isAuthorized("Admin"),createPost);
 router.post("/addslider",isAuthenticated,isAuthorized("Admin"),addSlider);
