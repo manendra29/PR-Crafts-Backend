@@ -14,10 +14,6 @@ const userSchema=new mongoose.Schema({
         minLength:[8,"password should be of 8 characters atleast"],
     },
     email: String,
-    profilePicture:{
-            type:String,
-            require:true,
-    },
     role:{
       type:String,
       default:"User",

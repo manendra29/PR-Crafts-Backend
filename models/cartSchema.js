@@ -7,14 +7,23 @@ const cartSchema=new mongoose.Schema({
         default:"Do as Your Own "
 
     },
-    image:String,
     title:String,
     price:Number,
+    Image:{
+        public_id:{
+            type:String,
+            require:true,
+        },
+        url:{
+            type:String,
+            require:true,
+        }
+    },
     userId:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"User"
         },
-        postId:{
+    postId:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Post"
         },

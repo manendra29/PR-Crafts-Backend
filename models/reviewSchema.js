@@ -8,9 +8,14 @@ const reviewSchema=new mongoose.Schema({
     description:String,
     star:Number,
     images:[{
-        default:"null",
-        type:String,
-        require:true,
+        public_id:{
+            type:String,
+            require:true,
+        },
+        url:{
+            type:String,
+            require:true,
+        }
     }],
     userId:{
         type:mongoose.Schema.Types.ObjectId,

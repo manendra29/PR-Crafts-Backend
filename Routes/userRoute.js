@@ -1,16 +1,17 @@
 import express from "express";
 const router=express.Router();
 import { isAuthenticated } from "../Middleware/isAuthenticated.js";
-import { addReview, addToCart, cartSize, deleteCartProduct, deleteReview, generateOTP, getProfile, getReviewsOfPost, login, logout, MyCart, productsTagLine, register, underPrice } from "../Controller/userController.js";
+import { addReview, addToCart, cartSize, deleteCartProduct, deleteReview, generateOTP, getProfile, getReviewsOfPost, login, logout, MyCart, productsTagLine, register, underPrice, verifyOTP } from "../Controller/userController.js";
 import upload from "../Middleware/multerConfig.js";
 
 
 router.post("/otp",generateOTP);
+router.post("/verifyotp",verifyOTP);
 router.post("/register", register);
 router.post("/login", login);
 router.get("/logout",isAuthenticated,logout);
 router.get("/me",isAuthenticated,getProfile);
-router.post("/createreview/:id",isAuthenticated,upload.array("images",3),addReview);
+router.post("/createreview/:id",isAuthenticated,addReview);
 router.delete("/deletereview/:id",isAuthenticated,deleteReview);
 router.post("/addtocart/:id",isAuthenticated,addToCart);
 router.get("/under/:price",underPrice);

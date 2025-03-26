@@ -22,8 +22,14 @@ const postSchema=new mongoose.Schema({
         ref:"Category"
     },
     postImages:[{
+        public_id:{
             type:String,
             require:true,
+        },
+        url:{
+            type:String,
+            require:true,
+        }
     }],
 
     createdAt: {
