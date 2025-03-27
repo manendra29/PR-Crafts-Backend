@@ -14,6 +14,7 @@ const app=express();
 app.use(cors({
     origin: [
       'https://pr-crafts-front-end.vercel.app',
+      'pr-crafts-front-end-manendras-projects.vercel.app',
       'http://localhost:3000'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
