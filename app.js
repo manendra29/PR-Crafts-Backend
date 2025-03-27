@@ -11,12 +11,14 @@ config({
     path:"./config/config.env"
 })
 const app=express();
-
 app.use(cors({
-    origin:process.env.FRONTEND_URL,
-    methods:["POST","GET","DELETE","PUT"],
-    credentials:true
-}));
+    origin: [
+      'https://pr-crafts-front-end.vercel.app',
+      'http://localhost:3000'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
 app.use(cookieParser());
 app.use(express.json());
