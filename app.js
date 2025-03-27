@@ -17,8 +17,15 @@ app.use(cors({
       'http://localhost:3000'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // This is crucial for handling credentials
   }));
+  
+  // Ensure cookies can be set
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+  });
 
 app.use(cookieParser());
 app.use(express.json());
