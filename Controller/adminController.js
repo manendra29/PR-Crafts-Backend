@@ -420,6 +420,55 @@ export const getAllCategory=catchAsyncError(async(req,res,next) =>{
 // });
 
 
+// export const addCategory = catchAsyncError(async (req, res, next) => {
+//     const { title, description } = req.body;
+
+//     if (!req.files || !req.files.image) 
+//         return next(new ErrorHandler("Image is required!", 400));
+
+//     if (!title || !description) 
+//         return next(new ErrorHandler("Enter complete details!", 400));
+
+//     const { image } = req.files;
+//     const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+//     if (!allowedFormats.has(image.mimetype)) 
+//         return next(new ErrorHandler("Image format not supported", 400));
+
+//     // Create category first with a temporary image placeholder
+//     const category = await Category.create({
+//         title,
+//         description,
+//         image: { public_id: "temp", url: "/temp/image" }
+//     });
+
+//     res.json({
+//         success: true,
+//         message: "Category is being processed. Image will be uploaded shortly.",
+//         category
+//     });
+
+//     // **Upload image in background**
+//     try {
+//         const cloudinaryResponse = await cloudinary.uploader.upload(
+//             image.tempFilePath,
+//             { folder: "Category_Images" }
+//         );
+
+//         if (cloudinaryResponse?.secure_url) {
+//             await Category.findByIdAndUpdate(category._id, {
+//                 image: {
+//                     public_id: cloudinaryResponse.public_id,
+//                     url: cloudinaryResponse.secure_url
+//                 }
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Image Upload Error:", error);
+//     }
+// });
+
+
 export const addCategory = catchAsyncError(async (req, res, next) => {
     const { title, description } = req.body;
 
@@ -435,39 +484,34 @@ export const addCategory = catchAsyncError(async (req, res, next) => {
     if (!allowedFormats.has(image.mimetype)) 
         return next(new ErrorHandler("Image format not supported", 400));
 
-    // Create category first with a temporary image placeholder
-    const category = await Category.create({
-        title,
-        description,
-        image: { public_id: "temp", url: "/temp/image" }
-    });
-
-    res.json({
-        success: true,
-        message: "Category is being processed. Image will be uploaded shortly.",
-        category
-    });
-
-    // **Upload image in background**
     try {
+        // Upload image to Cloudinary first
         const cloudinaryResponse = await cloudinary.uploader.upload(
             image.tempFilePath,
             { folder: "Category_Images" }
         );
 
-        if (cloudinaryResponse?.secure_url) {
-            await Category.findByIdAndUpdate(category._id, {
-                image: {
-                    public_id: cloudinaryResponse.public_id,
-                    url: cloudinaryResponse.secure_url
-                }
-            });
-        }
+        // Create category with uploaded image details
+        const category = await Category.create({
+            title,
+            description,
+            image: {
+                public_id: cloudinaryResponse.public_id,
+                url: cloudinaryResponse.secure_url
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Category created successfully",
+            category
+        });
+
     } catch (error) {
-        console.error("Image Upload Error:", error);
+        // Handle Cloudinary upload error
+        return next(new ErrorHandler("Failed to upload image", 500));
     }
 });
-
 
 
 
