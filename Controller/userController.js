@@ -41,7 +41,7 @@ if (Date.now() > expiresAt) {
 otpStorage.delete(email); 
 return next(new ErrorHandler("OTP has expired!", 400));
 }
-if (storedOtp !== otp) {
+if (storedOtp != otp) {
 return next(new ErrorHandler("Invalid OTP!", 400));
 }
 otpStorage.delete(email);
