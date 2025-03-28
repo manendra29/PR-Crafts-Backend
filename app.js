@@ -16,7 +16,7 @@ app.use(cors({
     origin: [
       'https://pr-crafts-front-end.vercel.app',
       'https://pr-crafts-front-end-manendras-projects.vercel.app',
-      'http://localhost:3000'
+      'http://localhost:5173'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
