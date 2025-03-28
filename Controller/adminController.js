@@ -87,6 +87,7 @@ import { Slider } from "../models/sliderSchema.js";
 export const createPost = catchAsyncError(async (req, res, next) => {
     const { id } = req.params;
 
+    // Validate image upload
     if (!req.files || !req.files.postImages) 
         return next(new ErrorHandler("Post Images are Needed", 400));
 
@@ -94,51 +95,34 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         ? req.files.postImages 
         : [req.files.postImages];
 
+    // Validate image count and format
+    const MAX_IMAGES = 5;
+    const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+
     if (postImages.length === 0) 
         return next(new ErrorHandler("Post Images are Needed", 400));
 
-    const MAX_IMAGES = 5;
     if (postImages.length > MAX_IMAGES) 
         return next(new ErrorHandler(`Maximum ${MAX_IMAGES} images allowed`, 400));
 
-    const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
     if (postImages.some(img => !allowedFormats.has(img.mimetype)))
         return next(new ErrorHandler("Some image formats are not supported", 400));
 
-    const categoryPromise = Category.findById(id);
-
+    // Validate post details
     const { title, description, size, specification, price, quantity, tag, stock, discount } = req.body;
     if (!title || !description || !price || !size || !specification || !quantity || !discount) {
         return next(new ErrorHandler("Enter the complete details", 400));
     }
 
-    const imagePaths = postImages.map(img => img.tempFilePath);
-    
-    const userPost = await Post.create({
-        postImages: imagePaths.map(path => ({ public_id: "temp", url: path })),
-        title,
-        description,
-        price,
-        specification,
-        size,
-        categoryId: id,
-        quantity,
-        tag,
-        stock,
-        discount
-    });
+    // Check category
+    const category = await Category.findById(id);
+    if (!category) {
+        return next(new ErrorHandler("Invalid Category", 404));
+    }
 
-    res.status(201).json({
-        success: true,
-        message: "Post is being processed. Images will be uploaded shortly.",
-        userPost
-    });
-
-    // 🔥 Optimize Background Upload
-    categoryPromise.then(async (category) => {
-        if (!category) return;
-
-        const uploadPromises = postImages.map(image =>
+    try {
+        // Upload images to Cloudinary first
+        const uploadPromises = postImages.map(image => 
             cloudinary.uploader.upload(image.tempFilePath, {
                 folder: "Post_Images",
                 quality: "auto:good",
@@ -149,6 +133,7 @@ export const createPost = catchAsyncError(async (req, res, next) => {
 
         const cloudinaryResults = await Promise.allSettled(uploadPromises);
 
+        // Extract successful uploads
         const uploadedImages = cloudinaryResults
             .filter(res => res.status === "fulfilled" && res.value)
             .map(res => ({
@@ -156,19 +141,49 @@ export const createPost = catchAsyncError(async (req, res, next) => {
                 url: res.value.secure_url
             }));
 
-        if (uploadedImages.length > 0) {
-            await Post.updateOne(
-                { _id: userPost._id },
-                { $set: { postImages: uploadedImages } }
-            );
+        // If no images uploaded successfully
+        if (uploadedImages.length === 0) {
+            return next(new ErrorHandler("Image upload failed", 500));
         }
 
-        // Delete Temp Files
-        postImages.forEach(image => fs.unlink(image.tempFilePath, err => {
-            if (err) console.error("Error deleting temp file:", err);
-        }));
+        // Create post with uploaded image URLs
+        const userPost = await Post.create({
+            postImages: uploadedImages,
+            title,
+            description,
+            price,
+            specification,
+            size,
+            categoryId: id,
+            quantity,
+            tag,
+            stock,
+            discount
+        });
 
-    }).catch(err => console.error("Image Upload Error:", err));
+        // Clean up temporary files
+        await Promise.all(postImages.map(image => 
+            fs.promises.unlink(image.tempFilePath)
+        ));
+
+        // Respond with success
+        res.status(201).json({
+            success: true,
+            message: "Post created successfully with images",
+            userPost
+        });
+
+    } catch (error) {
+        // Handle any unexpected errors during upload or post creation
+        console.error("Post Creation Error:", error);
+
+        // Clean up temporary files in case of error
+        await Promise.all(postImages.map(image => 
+            fs.promises.unlink(image.tempFilePath).catch(() => {})
+        ));
+
+        return next(new ErrorHandler("Failed to create post", 500));
+    }
 });
 
 
