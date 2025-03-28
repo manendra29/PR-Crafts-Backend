@@ -1,11 +1,17 @@
 import app from "./app.js";
-import cloudinary from "cloudinary";
-cloudinary.v2.config({
-    cloud_name:process.env.CLOUDINARY_NAME,
-    api_key:process.env.CLOUDINARY_API_KEY,
-    api_secret:process.env.CLOUDINARY_SECRET_KEY
-})
+import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
 
-app.listen(process.env.PORT,()=>{
-    console.log(`Port is listen on ${process.env.PORT}`);
+// Load .env variables
+dotenv.config();  
+
+// Cloudinary configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,  // Ensure the key name is correct
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET_KEY
+});
+
+app.listen(process.env.PORT || 4000, () => {
+    console.log(`Server is running on port ${process.env.PORT || 4000}`);
 });
