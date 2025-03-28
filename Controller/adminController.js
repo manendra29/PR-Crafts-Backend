@@ -484,33 +484,45 @@ export const addCategory = catchAsyncError(async (req, res, next) => {
     if (!allowedFormats.has(image.mimetype)) 
         return next(new ErrorHandler("Image format not supported", 400));
 
-    try {
-        // Upload image to Cloudinary first
-        const cloudinaryResponse = await cloudinary.uploader.upload(
-            image.tempFilePath,
-            { folder: "Category_Images" }
-        );
+    // try {
+    //     // Upload image to Cloudinary first
+    //     const cloudinaryResponse = await cloudinary.uploader.upload(
+    //         image.tempFilePath,
+    //         { folder: "Category_Images" }
+    //     );
 
-        // Create category with uploaded image details
-        const category = await Category.create({
-            title,
-            description,
-            image: {
-                public_id: cloudinaryResponse.public_id,
-                url: cloudinaryResponse.secure_url
-            }
-        });
+    //     // Create category with uploaded image details
+    //     const category = await Category.create({
+    //         title,
+    //         description,
+    //         image: {
+    //             public_id: cloudinaryResponse.public_id,
+    //             url: cloudinaryResponse.secure_url
+    //         }
+    //     });
 
+
+    const cloudinaryResponse= await cloudinary.uploader.upload(
+        image.tempFilePath,
+        {
+            folder:"Category_Image"
+        }
+    );
+    if(!cloudinaryResponse || cloudinaryResponse.error){
+        console.log("Cloudinary Error : ", cloudinaryResponse.error || "UnKnown Cloudinary Error Happend!");
+        return next(new ErrorHandler("Failed to upload image top cloudinary",400));
+    }
+    const category = await Category.create({
+        title,description,image:{
+            public_id:cloudinaryResponse.public_id,
+            url:cloudinaryResponse.secure_url
+        },
+    });
         res.status(201).json({
             success: true,
             message: "Category created successfully",
             category
         });
-
-    } catch (error) {
-        // Handle Cloudinary upload error
-        return next(new ErrorHandler("Failed to upload image", 500));
-    }
 });
 
 
