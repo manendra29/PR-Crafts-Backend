@@ -7,9 +7,10 @@ import {dbConnect} from "./database/dbConnect.js";
 import userRoute from "./Routes/userRoute.js";
 import postRoute from "./Routes/postRoute.js";
 
-config({
-    path:"./config/config.env"
-})
+// config({
+//     path:"./config/config.env"
+// })
+dotenv.config();
 const app=express();
 app.use(cors({
     origin: [
