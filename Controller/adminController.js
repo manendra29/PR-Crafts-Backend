@@ -7,6 +7,83 @@ import { Category } from "../models/cagtegorySchema.js";
 import { Slider } from "../models/sliderSchema.js";
 
 
+// export const createPost = catchAsyncError(async (req, res, next) => {
+//     const { id } = req.params;
+
+//     if (!req.files || !req.files.postImages) 
+//         return next(new ErrorHandler("Post Images are Needed", 400));
+
+//     const postImages = Array.isArray(req.files.postImages) 
+//         ? req.files.postImages 
+//         : [req.files.postImages];
+
+//     if (postImages.length === 0) 
+//         return next(new ErrorHandler("Post Images are Needed", 400));
+
+//     const MAX_IMAGES = 5;
+//     if (postImages.length > MAX_IMAGES) 
+//         return next(new ErrorHandler(`Maximum ${MAX_IMAGES} images allowed`, 400));
+
+//     const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+//     if (postImages.some(img => !allowedFormats.has(img.mimetype)))
+//         return next(new ErrorHandler("Some image formats are not supported", 400));
+
+//     // Fetch category **in parallel** to avoid blocking
+//     const categoryPromise = Category.findById(id);
+
+//     const { title, description, size, specification, price, quantity, tag, stock, discount } = req.body;
+//     if (!title || !description || !price || !size || !specification || !quantity || !discount) {
+//         return next(new ErrorHandler("Enter the complete details", 400));
+//     }
+
+//     // **Don't block response for uploads, perform uploads in background**
+//     const imagePaths = postImages.map(img => img.tempFilePath); // Store temp paths
+    
+//     // Create post entry with temp images & return response immediately
+//     const userPost = await Post.create({
+//         postImages: imagePaths.map(path => ({ public_id: "temp", url: path })),
+//         title,
+//         description,
+//         price,
+//         specification,
+//         size,
+//         categoryId: id,
+//         quantity,
+//         tag,
+//         stock,
+//         discount
+//     });
+
+//     res.status(201).json({
+//         success: true,
+//         message: "Post is being processed. Images will be uploaded shortly.",
+//         userPost
+//     });
+
+//     // 🔥 Upload images in the **background**
+//     categoryPromise.then(async (category) => {
+//         if (!category) return;
+
+//         const uploadPromises = postImages.map(image =>
+//             cloudinary.uploader.upload(image.tempFilePath, { folder: "Post_Images" })
+//         );
+
+//         const cloudinaryResults = await Promise.allSettled(uploadPromises);
+
+//         const uploadedImages = cloudinaryResults
+//             .filter(res => res.status === "fulfilled" && res.value)
+//             .map(res => ({
+//                 public_id: res.value.public_id,
+//                 url: res.value.secure_url
+//             }));
+
+//         if (uploadedImages.length > 0) {
+//             // 🔄 Update post with Cloudinary URLs after upload
+//             await Post.findByIdAndUpdate(userPost._id, { postImages: uploadedImages });
+//         }
+//     }).catch(err => console.error("Image Upload Error:", err));
+// });
+
 export const createPost = catchAsyncError(async (req, res, next) => {
     const { id } = req.params;
 
@@ -28,7 +105,6 @@ export const createPost = catchAsyncError(async (req, res, next) => {
     if (postImages.some(img => !allowedFormats.has(img.mimetype)))
         return next(new ErrorHandler("Some image formats are not supported", 400));
 
-    // Fetch category **in parallel** to avoid blocking
     const categoryPromise = Category.findById(id);
 
     const { title, description, size, specification, price, quantity, tag, stock, discount } = req.body;
@@ -36,10 +112,8 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Enter the complete details", 400));
     }
 
-    // **Don't block response for uploads, perform uploads in background**
-    const imagePaths = postImages.map(img => img.tempFilePath); // Store temp paths
+    const imagePaths = postImages.map(img => img.tempFilePath);
     
-    // Create post entry with temp images & return response immediately
     const userPost = await Post.create({
         postImages: imagePaths.map(path => ({ public_id: "temp", url: path })),
         title,
@@ -60,12 +134,17 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         userPost
     });
 
-    // 🔥 Upload images in the **background**
+    // 🔥 Optimize Background Upload
     categoryPromise.then(async (category) => {
         if (!category) return;
 
         const uploadPromises = postImages.map(image =>
-            cloudinary.uploader.upload(image.tempFilePath, { folder: "Post_Images" })
+            cloudinary.uploader.upload(image.tempFilePath, {
+                folder: "Post_Images",
+                quality: "auto:good",
+                width: 1024,
+                crop: "limit"
+            })
         );
 
         const cloudinaryResults = await Promise.allSettled(uploadPromises);
@@ -78,12 +157,19 @@ export const createPost = catchAsyncError(async (req, res, next) => {
             }));
 
         if (uploadedImages.length > 0) {
-            // 🔄 Update post with Cloudinary URLs after upload
-            await Post.findByIdAndUpdate(userPost._id, { postImages: uploadedImages });
+            await Post.updateOne(
+                { _id: userPost._id },
+                { $set: { postImages: uploadedImages } }
+            );
         }
+
+        // Delete Temp Files
+        postImages.forEach(image => fs.unlink(image.tempFilePath, err => {
+            if (err) console.error("Error deleting temp file:", err);
+        }));
+
     }).catch(err => console.error("Image Upload Error:", err));
 });
-
 
 
 export const deletePost=catchAsyncError(async(req,res,next) =>{
