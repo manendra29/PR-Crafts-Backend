@@ -1,12 +1,5 @@
 {
     "version": 2,
-    "builds": [
-      {
-        "src": "app.js",
-        "use": "@vercel/node",
-        "config": { "includeFiles": ["dist/**"], "maxDuration": 30 }
-      }
-    ],
     "routes": [
       {
         "src": "/(.*)",
@@ -14,4 +7,5 @@
       }
     ]
   }
+  
   
