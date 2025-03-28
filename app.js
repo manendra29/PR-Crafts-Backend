@@ -10,7 +10,7 @@ import postRoute from "./Routes/postRoute.js";
 // config({
 //     path:"./config/config.env"
 // })
-dotenv.config();
+config();
 const app=express();
 app.use(cors({
     origin: [
