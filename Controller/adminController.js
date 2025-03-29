@@ -470,8 +470,8 @@ export const getAllCategory=catchAsyncError(async(req,res,next) =>{
 
 
 export const addCategory = catchAsyncError(async (req, res, next) => {
+    console.log("3.",req.user);
     const { title, description } = req.body;
-
     if (!req.files || !req.files.image) 
         return next(new ErrorHandler("Image is required!", 400));
 
