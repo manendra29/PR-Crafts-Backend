@@ -223,75 +223,56 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Invalid Category", 404));
     }
 
-    try {
-        // Upload images to Cloudinary first
-        const uploadedImages = [];
-        
-        for (const image of postImages) {
-            const cloudinaryResponse = await cloudinary.uploader.upload(
-                image.tempFilePath,
-                {
-                    folder: "Post_Images",
-                    quality: "auto:good",
-                    width: 1024,
-                    crop: "limit"
-                }
-            );
-            
-            if (!cloudinaryResponse || cloudinaryResponse.error) {
-                console.log("Cloudinary Error: ", cloudinaryResponse.error || "Unknown Cloudinary Error Happened!");
-                return next(new ErrorHandler("Failed to upload image to cloudinary", 400));
+    // Upload images to Cloudinary first
+    const uploadedImages = [];
+    
+    for (const image of postImages) {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+            image.tempFilePath,
+            {
+                folder: "Post_Images",
+                quality: "auto:good",
+                width: 1024,
+                crop: "limit"
             }
-            
-            uploadedImages.push({
-                public_id: cloudinaryResponse.public_id,
-                url: cloudinaryResponse.secure_url
-            });
+        );
+        
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+            console.log("Cloudinary Error: ", cloudinaryResponse.error || "Unknown Cloudinary Error Happened!");
+            return next(new ErrorHandler("Failed to upload image to cloudinary", 400));
         }
-
-        // If no images uploaded successfully
-        if (uploadedImages.length === 0) {
-            return next(new ErrorHandler("Image upload failed", 500));
-        }
-
-        // Create post with uploaded image URLs
-        const userPost = await Post.create({
-            postImages: uploadedImages,
-            title,
-            description,
-            price,
-            specification,
-            size,
-            categoryId: id,
-            quantity,
-            tag,
-            stock,
-            discount
+        
+        uploadedImages.push({
+            public_id: cloudinaryResponse.public_id,
+            url: cloudinaryResponse.secure_url
         });
-
-        // Clean up temporary files
-        await Promise.all(postImages.map(image => 
-            fs.promises.unlink(image.tempFilePath)
-        ));
-
-        // Respond with success
-        res.status(201).json({
-            success: true,
-            message: "Post created successfully with images",
-            userPost
-        });
-
-    } catch (error) {
-        // Handle any unexpected errors during upload or post creation
-        console.error("Post Creation Error:", error);
-
-        // Clean up temporary files in case of error
-        await Promise.all(postImages.map(image => 
-            fs.promises.unlink(image.tempFilePath).catch(() => {})
-        ));
-
-        return next(new ErrorHandler("Failed to create post", 500));
     }
+
+    // If no images uploaded successfully
+    if (uploadedImages.length === 0) {
+        return next(new ErrorHandler("Image upload failed", 500));
+    }
+
+    // Create post with uploaded image URLs
+    const userPost = await Post.create({
+        postImages: uploadedImages,
+        title,
+        description,
+        price,
+        specification,
+        size,
+        categoryId: id,
+        quantity,
+        tag,
+        stock,
+        discount
+    });
+    // Respond with success
+    res.status(201).json({
+        success: true,
+        message: "Post created successfully with images",
+        userPost
+    });
 });
 
 export const deletePost=catchAsyncError(async(req,res,next) =>{
