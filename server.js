@@ -7,7 +7,7 @@ dotenv.config();
 
 // Cloudinary configuration
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,  // Ensure the key name is correct
+    cloud_name: process.env.CLOUDINARY_NAME,  // Ensure the key name is correct
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_SECRET_KEY
 });
