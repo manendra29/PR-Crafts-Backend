@@ -814,30 +814,35 @@ export const addSlider = catchAsyncError(async (req, res, next) => {
     if (!allowedFormats.has(image.mimetype))
         return next(new ErrorHandler("Image format not supported", 400));
 
+    // Upload image to Cloudinary first
+    const cloudinaryResponse = await cloudinary.uploader.upload(
+        image.tempFilePath,
+        {
+            folder: "Slider_Images"
+        }
+    );
+    
+    if (!cloudinaryResponse || cloudinaryResponse.error) {
+        console.log("Cloudinary Error: ", cloudinaryResponse.error || "Unknown Cloudinary Error Happened!");
+        return next(new ErrorHandler("Failed to upload image to cloudinary", 400));
+    }
+
+    // Create slider with uploaded image URL
     const slider = await Slider.create({
-        image: { public_id: "temp", url: "" },
-        title
+        title,
+        image: {
+            public_id: cloudinaryResponse.public_id,
+            url: cloudinaryResponse.secure_url
+        }
     });
 
+    // Respond with success
     res.status(201).json({
         success: true,
-        message: "Slider is being processed. Image will be uploaded shortly.",
+        message: "Slider created successfully with image",
         slider
     });
-
-    try {
-        const cloudinaryResponse = await cloudinary.uploader.upload(image.tempFilePath, { folder: "Slider_Images" });
-        await Slider.findByIdAndUpdate(slider._id, {
-            image: {
-                public_id: cloudinaryResponse.public_id,
-                url: cloudinaryResponse.secure_url
-            }
-        });
-    } catch (error) {
-        console.error("Cloudinary Upload Error:", error);
-    }
 });
-
 
 
 export const deleteSilder=catchAsyncError(async(req,res,next) =>{
