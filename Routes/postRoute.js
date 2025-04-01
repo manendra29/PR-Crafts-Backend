@@ -18,7 +18,7 @@ router.delete("/deletecategory/:id",isAuthenticated,isAuthorized("Admin"),delete
 router.get("/allcategory",isAuthenticated,isAuthorized("Admin"),getAllCategory);
 router.get("/categoryname",isAuthenticated,isAuthorized("Admin"),getCategoryName);
 router.get("/showpost/:id",getSinglePost);
-router.get("/slider",isAuthenticated,getSliders);
+router.get("/slider",getSliders);
 router.delete("/deleteslider/:id",isAuthenticated,deleteSilder);
 
 
