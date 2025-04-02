@@ -16,7 +16,7 @@ router.post("/addcategory",isAuthenticated,isAuthorized("Admin"),addCategory);
 router.put("/updatecategory/:id",isAuthenticated,isAuthorized("Admin"),updateCategory);
 router.delete("/deletecategory/:id",isAuthenticated,isAuthorized("Admin"),deleteCategory);
 router.get("/allcategory",getAllCategory);
-router.get("/categoryname",isAuthenticated,isAuthorized("Admin"),getCategoryName);
+router.get("/categoryname",getCategoryName);
 router.get("/showpost/:id",getSinglePost);
 router.get("/slider",getSliders);
 router.delete("/deleteslider/:id",isAuthenticated,deleteSilder);
