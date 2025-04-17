@@ -24,7 +24,14 @@ import { Slider } from "../models/sliderSchema.js";
 //     if (postImages.length > MAX_IMAGES) 
 //         return next(new ErrorHandler(`Maximum ${MAX_IMAGES} images allowed`, 400));
 
-//     const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+//   const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
 //     if (postImages.some(img => !allowedFormats.has(img.mimetype)))
 //         return next(new ErrorHandler("Some image formats are not supported", 400));
 
@@ -200,7 +207,14 @@ export const createPost = catchAsyncError(async (req, res, next) => {
 
     // Validate image count and format
     const MAX_IMAGES = 5;
-    const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+  const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
 
     if (postImages.length === 0) 
         return next(new ErrorHandler("Post Images are Needed", 400));
@@ -518,7 +532,14 @@ export const getAllCategory=catchAsyncError(async(req,res,next) =>{
 //         return next(new ErrorHandler("Enter complete details!", 400));
 
 //     const { image } = req.files;
-//     const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+//   const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
 
 //     if (!allowedFormats.has(image.mimetype)) 
 //         return next(new ErrorHandler("Image format not supported", 400));
@@ -567,7 +588,14 @@ export const addCategory = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Enter complete details!", 400));
 
     const { image } = req.files;
-    const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+  const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
 
     if (!allowedFormats.has(image.mimetype)) 
         return next(new ErrorHandler("Image format not supported", 400));
@@ -767,7 +795,14 @@ export const getSliders=catchAsyncError(async(req,res,next) =>{
 //         return next(new ErrorHandler("Enter the Complete details", 400));
 //     }
 
-//     const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+//   const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
 //     if (!allowedFormats.has(image.mimetype))
 //         return next(new ErrorHandler("Image format not supported", 400));
 
@@ -810,7 +845,14 @@ export const addSlider = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Enter the Complete details", 400));
     }
 
-    const allowedFormats = new Set(["image/png", "image/jpeg", "image/webp"]);
+  const allowedFormats = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/octet-stream" // optional fallback for iOS uploads
+]);
     if (!allowedFormats.has(image.mimetype))
         return next(new ErrorHandler("Image format not supported", 400));
 
