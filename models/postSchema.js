@@ -8,6 +8,7 @@ const postSchema=new mongoose.Schema({
     specification:String,
     quantity:Number,
     discount:Number,
+    videoLink:String,
     stock:{
         type:String,
         enum:["Active","Out Of Stocks"]

@@ -217,7 +217,7 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Some image formats are not supported", 400));
 
     // Validate post details
-    const { title, description, size, specification, price, quantity, tag, stock, discount } = req.body;
+    const { title, description,videoLink, size, specification, price, quantity, tag, stock, discount } = req.body;
     if (!title || !description || !price || !size || !specification || !quantity || !discount) {
         return next(new ErrorHandler("Enter the complete details", 400));
     }
@@ -265,6 +265,7 @@ export const createPost = catchAsyncError(async (req, res, next) => {
         description,
         price,
         specification,
+        videoLink,
         size,
         categoryId: id,
         quantity,
